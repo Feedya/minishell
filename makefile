@@ -1,42 +1,35 @@
-NAME = minishell
-
+# Compilateur
 CC = gcc
+
+# Options de compilation
 CFLAGS = -Wall -Wextra -Werror
-READ_FLAGS = -lreadline
 
-OBJ_DIR = obj
-SRC_DIR = src
-PATH_DIR = src/PATH
-ENV_ALL_DIR = src/env_all
-SIGNAL_DIR = src/signal
+# Nom de l'exécutable
+TARGET = prog
 
-SRCS = $(SRC_DIR)/main.c \
-			$(ENV_ALL_DIR)/copy_env_of_all.c $(SRC_DIR)/utils.c\
-		$(ENV_ALL_DIR)/create_env_of_all.c $(SIGNAL_DIR)/make_signal.c\
-		$(PATH_DIR)/copy_path.c $(SRC_DIR)/parsing.c\
-		$(SRC_DIR)/add_commande.c
+# Fichiers sources (tous les fichiers .c dans le répertoire courant)
+SRCS = $(wildcard *.c)
 
-OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.o)
+# Fichiers objets (générés à partir des fichiers sources)
+OBJS = $(SRCS:.c=.o)
 
-all: $(NAME)
+# Règle par défaut
+all: $(TARGET)
 
+# Règle pour créer l'exécutable
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
 
-$(NAME): $(OBJS)
-	$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(READ_FLAGS)
-
-$(OBJ_DIR)/%.o: %.c | $(OBJ_DIR)
-	mkdir -p $(dir $@)
+# Règle pour compiler chaque fichier .c en .o
+%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
-
+# Règle pour nettoyer les fichiers générés
 clean:
-	rm -rf $(OBJ_DIR)
+	rm -f $(OBJS) $(TARGET)
 
-fclean: clean
-	rm -f $(NAME)
+# Règle pour recompiler depuis zéro
+re: clean all
 
-re: fclean all
-
-.PHONY: all clean fclean re leak
+# Indique que les règles "all", "clean" et "re" ne sont pas des fichiers
+.PHONY: all clean re
